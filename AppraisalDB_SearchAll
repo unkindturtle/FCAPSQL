@@ -1,0 +1,21 @@
+select 
+*
+from Appraisal.dbo.res_Sales
+Join Appraisal.dbo.cd_Counties
+on Appraisal.dbo.cd_Counties.County_SV = Appraisal.dbo.res_Sales.County_SV
+Join Appraisal.dbo.cd_HighestBestUse
+on Appraisal.dbo.cd_HighestBestUse.HighestBestUse_SV = Appraisal.dbo.res_Sales.PrimaryHighestBestUse_SV
+Join Appraisal.dbo.cd_PropertyType
+on Appraisal.dbo.cd_PropertyType.PropertyType_SV = Appraisal.dbo.res_Sales.PrimaryPropertyType_SV
+Join Appraisal.dbo.cd_States
+on Appraisal.dbo.cd_States.State_ID = Appraisal.dbo.res_Sales.State_ID
+Join Appraisal.dbo.cd_PopulationArea
+on Appraisal.dbo.cd_PopulationArea.PopulationArea_SV = Appraisal.dbo.res_Sales.PopulationArea_SV
+Join Appraisal.dbo.res_RectangularLegalDescription
+on Appraisal.dbo.res_RectangularLegalDescription.Sale_SV = Appraisal.dbo.res_Sales.Sale_SV
+Where StateName_TX LIKE 'Kansas' AND
+Appraisal.dbo.res_Sales.PrimaryPropertyTypeUnit_TX LIKE 'Acres' AND
+Appraisal.dbo.res_Sales.SalePricePerAcre_VAL > 1 AND
+Appraisal.dbo.cd_HighestBestUse.Desc_TX NOT LIKE 'Residential' AND
+Appraisal.dbo.res_Sales.ImprovementsValue_CUR = 0
+order by Appraisal.dbo.cd_States.StateName_TX, Appraisal.dbo.cd_Counties.County_TX
