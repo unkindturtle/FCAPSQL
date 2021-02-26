@@ -1,46 +1,72 @@
-select
-CONCAT(Appraisal.dbo.res_Sales.State_ID, '-', Appraisal.dbo.cd_Counties.County_TX, '-', Appraisal.dbo.res_Sales.SaleDateYear_VAL, '-', Appraisal.dbo.res_Sales.SaleSequenceNumber_VAL) AS Sale_ID,
-Appraisal.dbo.res_Sales.PropertySeller_TX,
-Appraisal.dbo.res_Sales.PropertyBuyer_TX,
-Appraisal.dbo.res_Sales.TotalNumberofAcres_VAL,
-Appraisal.dbo.res_Sales.DateofSale_DT,
-Appraisal.dbo.res_Sales.SalesPrice_CUR,
-Appraisal.dbo.res_Sales.SalePricePerAcre_VAL
+USE Appraisal;
+;WITH D AS 
+(
+    SELECT CAST(AVG(SalePricePerAcre_VAL) AS NUMERIC(19, 2)) AS AVG_SalePricePerAcre,
+           ROUND(STDEV(SalePricePerAcre_VAL), 0) AS STDDV,
+           --COUNT(*) AS cnt,
+             State_ID,
+             County_SV,
+             PrimaryHighestBestUse_SV,
+             PrimaryPropertyType_SV,
+             SaleDateYear_VAL
+    FROM dbo.res_Sales
+    WHERE State_ID LIKE 'KS'
+          AND PrimaryPropertyTypeUnit_TX LIKE 'Acres'
+          AND SalePricePerAcre_VAL > 1
+          AND PrimaryHighestBestUse_SV NOT LIKE '1'
+          AND ImprovementsValue_CUR = 0
+    GROUP BY State_ID,
+             County_SV,
+             PrimaryHighestBestUse_SV,
+             PrimaryPropertyType_SV,
+             SaleDateYear_VAL
+            
+             
+)
 
-from
-Appraisal.dbo.res_Sales
 
-Join Appraisal.dbo.cd_Counties
-on Appraisal.dbo.cd_Counties.County_SV = Appraisal.dbo.res_Sales.County_SV
-Join Appraisal.dbo.cd_HighestBestUse
-on Appraisal.dbo.cd_HighestBestUse.HighestBestUse_SV = Appraisal.dbo.res_Sales.PrimaryHighestBestUse_SV
-Join Appraisal.dbo.cd_PropertyType
-on Appraisal.dbo.cd_PropertyType.PropertyType_SV = Appraisal.dbo.res_Sales.PrimaryPropertyType_SV
-Join Appraisal.dbo.cd_States
-on Appraisal.dbo.cd_States.State_ID = Appraisal.dbo.res_Sales.State_ID
-Join Appraisal.dbo.cd_PopulationArea
-on Appraisal.dbo.cd_PopulationArea.PopulationArea_SV = Appraisal.dbo.res_Sales.PopulationArea_SV
-Join Appraisal.dbo.res_RectangularLegalDescription
-on Appraisal.dbo.res_RectangularLegalDescription.Sale_SV = Appraisal.dbo.res_Sales.Sale_SV
-
-Inner Join (AVG(SalePricePerAcre_VAL) AS AVG,
-STDEV(SalePricePerAcre_VAL) AS DEV
-from Appraisal.dbo.res_Sales
-Where State_ID LIKE 'KS' AND
-Appraisal.dbo.res_Sales.PrimaryPropertyTypeUnit_TX LIKE 'Acres' AND
-Appraisal.dbo.res_Sales.SalePricePerAcre_VAL > 1 AND
-Appraisal.dbo.res_Sales.PrimaryHighestBestUse_SV NOT LIKE '1' AND
-Appraisal.dbo.res_Sales.ImprovementsValue_CUR = 0
-group by Appraisal.dbo.res_Sales.State_ID, Appraisal.dbo.res_Sales.County_SV, Appraisal.dbo.res_Sales.PrimaryHighestBestUse_SV, Appraisal.dbo.res_Sales.PrimaryPropertyType_SV
-) AS D
-on Appraisal.dbo.res_Sales.State_ID = D.Appraisal.dbo.res_Sales.State_ID
-AND Appraisal.dbo.res_Sales.County_SV = D.Appraisal.dbo.res_Sales.County_SV
-AND Appraisal.dbo.res_Sales.PrimaryHighestBestUse_SV = Appraisal.dbo.res_Sales.PrimaryHighestBestUse_SV
-AND Appraisal.dbo.res_Sales.PrimaryPropertyType_SV = D.Appraisal.dbo.res_Sales.PrimaryPropertyType_SV
-
-Where
-Appraisal.dbo.res_Sales.State_ID LIKE 'KS' AND
-PrimaryPropertyTypeUnit_TX LIKE 'Acres' AND
-SalePricePerAcre_VAL > 1 AND
-PrimaryHighestBestUse_SV NOT LIKE '1' AND
-ImprovementsValue_CUR = 0
+SELECT CONCAT(
+                 rs.State_ID,
+                 '-',
+                 cty.County_TX,
+                 '-',
+                 rs.SaleDateYear_VAL,
+                 '-',
+                 rs.SaleSequenceNumber_VAL
+             ) AS Sale_ID,
+       rs.PropertySeller_TX,
+       rs.PropertyBuyer_TX,
+       rs.TotalNumberofAcres_VAL,
+       rs.DateofSale_DT,
+       rs.SalesPrice_CUR,
+       rs.SalePricePerAcre_VAL,
+       d.AVG_SalePricePerAcre,
+       rs.SalePricePerAcre_VAL - D.AVG_SalePricePerAcre AS Diff_From_Avg
+FROM dbo.res_Sales AS rs
+    JOIN dbo.cd_Counties AS cty
+        ON cty.County_SV = rs.County_SV
+    JOIN dbo.cd_HighestBestUse AS hbu
+        ON hbu.HighestBestUse_SV = rs.PrimaryHighestBestUse_SV
+    JOIN dbo.cd_PropertyType AS pt
+        ON pt.PropertyType_SV = rs.PrimaryPropertyType_SV
+    JOIN dbo.cd_States AS st
+        ON st.State_ID = rs.State_ID
+    JOIN dbo.cd_PopulationArea AS pa
+        ON pa.PopulationArea_SV = rs.PopulationArea_SV
+    JOIN D 
+        ON d.State_ID = rs.State_ID AND
+           d.County_SV = rs.County_SV AND
+           d.PrimaryHighestBestUse_SV = rs.PrimaryHighestBestUse_SV AND
+           d.PrimaryPropertyType_SV = rs.PrimaryPropertyType_SV AND
+           d.SaleDateYear_VAL = rs.SaleDateYear_VAL
+WHERE rs.State_ID LIKE 'KS'
+      AND rs.PrimaryPropertyTypeUnit_TX = 'Acres'
+      AND rs.SalePricePerAcre_VAL > 1
+      AND rs.PrimaryHighestBestUse_SV <> 1
+      AND rs.ImprovementsValue_CUR = 0
+      AND rs.SaleDateYear_VAL > 2017
+      AND (
+          rs.SalePricePerAcre_VAL > D.AVG_SalePricePerAcre + D.STDDV
+          OR rs.SalePricePerAcre_VAL < D.AVG_SalePricePerAcre - D.STDDV
+       )
+    ORDER BY 1
