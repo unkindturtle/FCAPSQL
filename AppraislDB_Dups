@@ -1,0 +1,13 @@
+select 
+State_ID,
+County_SV,
+SaleDateYear_VAL,
+SalesPrice_CUR,
+Count(*) as qty
+From Appraisal.dbo.res_Sales
+Group by 
+State_ID,
+County_SV,
+SaleDateYear_VAL,
+SalesPrice_CUR
+Having count(*) > 1
