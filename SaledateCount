@@ -1,0 +1,17 @@
+select 
+Appraisal.dbo.cd_States.StateName_TX,
+Appraisal.dbo.cd_Counties.County_TX,
+COUNT(Appraisal.dbo.res_Sales.County_SV) AS Count
+from Appraisal.dbo.res_Sales
+Join Appraisal.dbo.cd_Counties
+on Appraisal.dbo.cd_Counties.County_SV = Appraisal.dbo.res_Sales.County_SV
+Join Appraisal.dbo.cd_States
+on Appraisal.dbo.cd_States.State_ID = Appraisal.dbo.res_Sales.State_ID
+Join Appraisal.dbo.cd_PopulationArea
+on Appraisal.dbo.cd_PopulationArea.PopulationArea_SV = Appraisal.dbo.res_Sales.PopulationArea_SV
+Join Appraisal.dbo.res_RectangularLegalDescription
+on Appraisal.dbo.res_RectangularLegalDescription.Sale_SV = Appraisal.dbo.res_Sales.Sale_SV
+Where StateName_TX LIKE 'Kansas' AND
+Appraisal.dbo.res_Sales.SaleDateYear_VAL = 2021
+group by Appraisal.dbo.cd_States.StateName_TX, Appraisal.dbo.cd_Counties.County_TX
+order by Appraisal.dbo.cd_States.StateName_TX, Appraisal.dbo.cd_Counties.County_TX
