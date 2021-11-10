@@ -25,6 +25,7 @@ Where StateName_TX LIKE 'Kansas' AND
 Appraisal.dbo.res_Sales.PrimaryPropertyTypeUnit_TX LIKE 'Acres' AND
 Appraisal.dbo.res_Sales.SalePricePerAcre_VAL > 1 AND
 Appraisal.dbo.cd_HighestBestUse.Desc_TX NOT LIKE 'Residential' AND
-Appraisal.dbo.res_Sales.ImprovementsValue_CUR = 0
+Appraisal.dbo.res_Sales.ImprovementsValue_CUR = 0 AND
+Appraisal.dbo.res_Sales.DateofSale_DT > DATEADD(year,-3,GETDATE())
 group by Appraisal.dbo.cd_States.StateName_TX, Appraisal.dbo.cd_Counties.County_TX, Appraisal.dbo.cd_HighestBestUse.Desc_TX, Appraisal.dbo.cd_PropertyType.PropertyDesc_TX
 order by Appraisal.dbo.cd_States.StateName_TX, Appraisal.dbo.cd_Counties.County_TX,  Appraisal.dbo.cd_HighestBestUse.Desc_TX, Appraisal.dbo.cd_PropertyType.PropertyDesc_TX
