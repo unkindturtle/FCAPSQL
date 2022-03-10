@@ -7,7 +7,7 @@ cast(MIN(SalePricePerAcre_VAL) AS numeric(19,2)) AS Min,
 cast(AVG(SalePricePerAcre_VAL)AS numeric(19,2)) AS Avg,
 cast(MAX(SalePricePerAcre_VAL)AS numeric(19,2)) AS Max,
 COUNT(Appraisal.dbo.cd_PropertyType.PropertyDesc_TX) AS Count,
-STDEV(SalePricePerAcre_VAL) AS STDDV
+cast(STDEV(SalePricePerAcre_VAL) AS decimal(10,2)) AS STDDV
 from Appraisal.dbo.res_Sales
 Join Appraisal.dbo.cd_Counties
 on Appraisal.dbo.cd_Counties.County_SV = Appraisal.dbo.res_Sales.County_SV
