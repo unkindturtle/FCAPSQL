@@ -2,13 +2,19 @@ select
 Appraisal.dbo.cd_States.StateName_TX,
 Appraisal.dbo.cd_Counties.County_TX,
 Appraisal.dbo.cd_HighestBestUse.Desc_TX,
-Appraisal.dbo.cd_PropertyType.PropertyDesc_TX,
-cast(MIN(SalePricePerAcre_VAL) AS numeric(19,2)) AS Min,
-cast(AVG(SalePricePerAcre_VAL)AS numeric(19,2)) AS Avg,
-cast(MAX(SalePricePerAcre_VAL)AS numeric(19,2)) AS Max,
-COUNT(Appraisal.dbo.cd_PropertyType.PropertyDesc_TX) AS Count,
-cast(STDEV(SalePricePerAcre_VAL) AS decimal(10,2)) AS STDDV
+Appraisal.dbo.cd_LandTypes.Desc_TX AS Landtype,
+--Appraisal.dbo.cd_PropertyType.PropertyDesc_TX,
+cast(MIN(Appraisal.dbo.res_LandInventory.PricePerAcreSelected_VAL) AS numeric(19,2)) AS Min,
+--cast(AVG(Appraisal.dbo.res_LandInventory.PricePerAcreSelected_VAL)AS numeric(19,2)) AS Avg,
+cast(SUM(Appraisal.dbo.res_LandInventory.InventoryTotal_CUR) / SUM(Appraisal.dbo.res_LandInventory.NumberofAcres_VAL) AS numeric(19,2)) AS Avg,
+cast(MAX(Appraisal.dbo.res_LandInventory.PricePerAcreSelected_VAL)AS numeric(19,2)) AS Max,
+COUNT(Appraisal.dbo.res_LandInventory.PricePerAcreSelected_VAL) AS Count,
+cast(STDEV(Appraisal.dbo.res_LandInventory.PricePerAcreSelected_VAL) AS decimal(10,2)) AS STDDV
 from Appraisal.dbo.res_Sales
+Join Appraisal.dbo.res_LandInventory
+on Appraisal.dbo.res_Sales.Sale_SV = Appraisal.dbo.res_LandInventory.Sale_SV
+Join Appraisal.dbo.cd_LandTypes
+on Appraisal.dbo.cd_LandTypes.LandType_SV = Appraisal.dbo.res_LandInventory.LandType_SV
 Join Appraisal.dbo.cd_Counties
 on Appraisal.dbo.cd_Counties.County_SV = Appraisal.dbo.res_Sales.County_SV
 Join Appraisal.dbo.cd_HighestBestUse
@@ -22,10 +28,12 @@ on Appraisal.dbo.cd_PopulationArea.PopulationArea_SV = Appraisal.dbo.res_Sales.P
 Join Appraisal.dbo.res_RectangularLegalDescription
 on Appraisal.dbo.res_RectangularLegalDescription.Sale_SV = Appraisal.dbo.res_Sales.Sale_SV
 Where StateName_TX LIKE 'Kansas' AND
+Appraisal.dbo.res_LandInventory.PricePerAcreSelected_VAL > 0 AND
+Appraisal.dbo.res_LandInventory.InventoryTotal_CUR > 0 AND
 Appraisal.dbo.res_Sales.PrimaryPropertyTypeUnit_TX LIKE 'Acres' AND
 Appraisal.dbo.res_Sales.SalePricePerAcre_VAL > 1 AND
 Appraisal.dbo.cd_HighestBestUse.Desc_TX NOT LIKE 'Residential' AND
 Appraisal.dbo.res_Sales.ImprovementsValue_CUR = 0 AND
 Appraisal.dbo.res_Sales.DateofSale_DT > DATEADD(year,-3,GETDATE())
-group by Appraisal.dbo.cd_States.StateName_TX, Appraisal.dbo.cd_Counties.County_TX, Appraisal.dbo.cd_HighestBestUse.Desc_TX, Appraisal.dbo.cd_PropertyType.PropertyDesc_TX
-order by Appraisal.dbo.cd_States.StateName_TX, Appraisal.dbo.cd_Counties.County_TX,  Appraisal.dbo.cd_HighestBestUse.Desc_TX, Appraisal.dbo.cd_PropertyType.PropertyDesc_TX
+group by Appraisal.dbo.cd_States.StateName_TX, Appraisal.dbo.cd_Counties.County_TX, Appraisal.dbo.cd_HighestBestUse.Desc_TX, Appraisal.dbo.cd_LandTypes.Desc_TX
+order by Appraisal.dbo.cd_States.StateName_TX, Appraisal.dbo.cd_Counties.County_TX, Appraisal.dbo.cd_HighestBestUse.Desc_TX, Appraisal.dbo.cd_LandTypes.Desc_TX
