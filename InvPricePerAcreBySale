@@ -1,0 +1,35 @@
+USE Appraisal
+select 
+CONCAT(dbo.res_Sales.State_ID, '-', dbo.cd_Counties.County_TX, '-', SaleDateYear_VAL, '-', SaleSequenceNumber_VAL) AS SaleID,
+CAST(DateofSale_DT AS Date) AS Date,
+CAST(dbo.res_Sales.SalesPrice_CUR AS INT) AS Price,
+CAST(dbo.res_Sales.TotalAcres_VAL AS numeric(15,2)) AS Acres,
+dbo.cd_HighestBestUse.Desc_TX AS HBU,
+dbo.cd_LandTypes.Desc_TX AS Land_Inv,
+dbo.res_LandInventory.PricePerAcreSelected_VAL
+from dbo.res_Sales
+Join dbo.res_LandInventory
+on dbo.res_Sales.Sale_SV = dbo.res_LandInventory.Sale_SV
+Join dbo.cd_LandTypes
+on dbo.cd_LandTypes.LandType_SV = dbo.res_LandInventory.LandType_SV
+Join dbo.cd_Counties
+on dbo.cd_Counties.County_SV = dbo.res_Sales.County_SV
+Join dbo.cd_HighestBestUse
+on dbo.cd_HighestBestUse.HighestBestUse_SV = dbo.res_Sales.PrimaryHighestBestUse_SV
+Join dbo.cd_PropertyType
+on dbo.cd_PropertyType.PropertyType_SV = dbo.res_Sales.PrimaryPropertyType_SV
+Join dbo.cd_States
+on dbo.cd_States.State_ID = dbo.res_Sales.State_ID
+Join dbo.cd_PopulationArea
+on dbo.cd_PopulationArea.PopulationArea_SV = dbo.res_Sales.PopulationArea_SV
+Join dbo.res_RectangularLegalDescription
+on dbo.res_RectangularLegalDescription.Sale_SV = dbo.res_Sales.Sale_SV
+Where StateName_TX LIKE 'Kansas'
+AND dbo.res_Sales.PrimaryPropertyTypeUnit_TX LIKE 'Acres'
+AND dbo.res_Sales.SalePricePerAcre_VAL > 1
+AND dbo.cd_HighestBestUse.Desc_TX NOT LIKE 'Residential'
+AND dbo.res_Sales.ImprovementsValue_CUR = 0
+--AND dbo.res_Sales.AtypicalSale_YN like 'N'
+AND dbo.res_Sales.DateofSale_DT > DATEADD(year,-1,GETDATE())
+order by dbo.cd_States.StateName_TX, dbo.cd_Counties.County_TX, DateofSale_DT;
+
