@@ -6,8 +6,9 @@ select
 	CAST(dbo.res_Sales.SalesPrice_CUR AS INT) AS Price,
 	CAST(dbo.res_Sales.TotalAcres_VAL AS numeric(15,2)) AS Acres,
 	dbo.cd_HighestBestUse.Desc_TX AS HBU,
-	dbo.cd_LandTypes.Desc_TX AS Land_Inv,
-	dbo.res_LandInventory.PricePerAcreSelected_VAL
+	dbo.cd_LandTypes.Desc_TX AS Inventory,
+	dbo.res_LandInventory.PricePerAcreSelected_VAL AS '$/Acre'
+
 from dbo.res_Sales
 	Join dbo.res_LandInventory
 		on dbo.res_Sales.Sale_SV = dbo.res_LandInventory.Sale_SV
@@ -25,10 +26,10 @@ from dbo.res_Sales
 		on dbo.cd_PopulationArea.PopulationArea_SV = dbo.res_Sales.PopulationArea_SV
 	Join dbo.res_RectangularLegalDescription
 		on dbo.res_RectangularLegalDescription.Sale_SV = dbo.res_Sales.Sale_SV
+
 Where StateName_TX LIKE 'Kansas'
-	AND dbo.res_Sales.PrimaryPropertyTypeUnit_TX LIKE 'Acres'
-	AND dbo.res_Sales.SalePricePerAcre_VAL > 1
-	AND dbo.cd_HighestBestUse.Desc_TX NOT LIKE 'Residential'
+	AND dbo.res_LandInventory.PricePerAcreSelected_VAL > 1
+	--AND dbo.cd_HighestBestUse.Desc_TX NOT LIKE 'Residential'
 	AND dbo.res_Sales.ImprovementsValue_CUR = 0
 	AND dbo.res_Sales.AtypicalSale_YN = 0
 	AND dbo.res_Sales.DateofSale_DT > DATEADD(year,-1,GETDATE())
