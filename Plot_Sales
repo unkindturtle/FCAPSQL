@@ -34,22 +34,22 @@ SELECT CONCAT(
                  '-',
                  rs.SaleSequenceNumber_VAL
              ) AS Sale_ID,
-	   rs.State_ID,
-	   cty.County_TX,
-       rs.PropertySeller_TX,
-       rs.PropertyBuyer_TX,
-       rs.TotalNumberofAcres_VAL,
-	   lt.LandUse_TX + '-' + lt.LandType_TX AS 'USE',
-       rs.DateofSale_DT,
-       rs.SalesPrice_CUR,
-       rs.SalePricePerAcre_VAL,
+	   rs.State_ID AS State,
+	   cty.County_TX AS County,
+       rs.PropertySeller_TX AS Seller,
+       rs.PropertyBuyer_TX AS Buyer,
+       rs.TotalNumberofAcres_VAL AS Acres,
+	   lt.PropertyDesc_TX AS LandType,
+       rs.DateofSale_DT AS Date,
+       rs.SalesPrice_CUR AS SalePrice,
+       rs.SalePricePerAcre_VAL AS 'Price/Acre',
        rs.Lat_TX,
 	   rs.Long_TX
 
 
 FROM dbo.res_Sales AS rs
-	Join dbo.cd_LandTypes AS lt
-		ON lt.LandType_SV = rs.PrimaryPropertyType_SV
+	Join dbo.cd_PropertyType AS lt
+		ON lt.PropertyType_SV = rs.PrimaryPropertyType_SV
     JOIN dbo.cd_Counties AS cty
         ON cty.County_SV = rs.County_SV
     JOIN dbo.cd_HighestBestUse AS hbu
