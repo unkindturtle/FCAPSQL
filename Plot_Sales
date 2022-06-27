@@ -1,0 +1,75 @@
+USE Appraisal;
+;WITH D AS 
+(
+    SELECT CAST(AVG(SalePricePerAcre_VAL) AS NUMERIC(19, 2)) AS AVG_SalePricePerAcre,
+           ROUND(STDEV(SalePricePerAcre_VAL), 0) AS STDDV,
+           --COUNT(*) AS cnt,
+             State_ID,
+             County_SV,
+             PrimaryHighestBestUse_SV,
+             PrimaryPropertyType_SV,
+             SaleDateYear_VAL
+    FROM dbo.res_Sales
+    WHERE State_ID LIKE 'KS'
+          AND PrimaryPropertyTypeUnit_TX LIKE 'Acres'
+          AND SalePricePerAcre_VAL > 1
+          AND PrimaryHighestBestUse_SV NOT LIKE '1'
+          AND ImprovementsValue_CUR = 0
+    GROUP BY State_ID,
+             County_SV,
+             PrimaryHighestBestUse_SV,
+             PrimaryPropertyType_SV,
+             SaleDateYear_VAL
+
+
+)
+
+
+SELECT CONCAT(
+                 rs.State_ID,
+                 '-',
+                 cty.County_TX,
+                 '-',
+                 rs.SaleDateYear_VAL,
+                 '-',
+                 rs.SaleSequenceNumber_VAL
+             ) AS Sale_ID,
+       rs.PropertySeller_TX,
+       rs.PropertyBuyer_TX,
+       rs.TotalNumberofAcres_VAL,
+	   lt.LandUse_TX + '-' + lt.LandType_TX AS 'USE',
+       rs.DateofSale_DT,
+       rs.SalesPrice_CUR,
+       rs.SalePricePerAcre_VAL,
+       rs.Lat_TX,
+	   rs.Long_TX
+
+
+FROM dbo.res_Sales AS rs
+	Join dbo.cd_LandTypes AS lt
+		ON lt.LandType_SV = rs.PrimaryPropertyType_SV
+    JOIN dbo.cd_Counties AS cty
+        ON cty.County_SV = rs.County_SV
+    JOIN dbo.cd_HighestBestUse AS hbu
+        ON hbu.HighestBestUse_SV = rs.PrimaryHighestBestUse_SV
+    JOIN dbo.cd_PropertyType AS pt
+        ON pt.PropertyType_SV = rs.PrimaryPropertyType_SV
+    JOIN dbo.cd_States AS st
+        ON st.State_ID = rs.State_ID
+    JOIN dbo.cd_PopulationArea AS pa
+        ON pa.PopulationArea_SV = rs.PopulationArea_SV
+    JOIN D 
+        ON d.State_ID = rs.State_ID AND
+           d.County_SV = rs.County_SV AND
+           d.PrimaryHighestBestUse_SV = rs.PrimaryHighestBestUse_SV AND
+           d.PrimaryPropertyType_SV = rs.PrimaryPropertyType_SV AND
+           d.SaleDateYear_VAL = rs.SaleDateYear_VAL
+WHERE rs.State_ID LIKE 'KS'
+      AND rs.PrimaryPropertyTypeUnit_TX = 'Acres'
+      AND rs.SalePricePerAcre_VAL > 1
+      AND rs.PrimaryHighestBestUse_SV <> 1
+      AND rs.ImprovementsValue_CUR = 0
+	  AND rs.AtypicalSale_YN = 0
+      AND rs.SaleDateYear_VAL > 2019
+   
+    ORDER BY 1
