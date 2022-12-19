@@ -2,6 +2,7 @@ USE Appraisal;
 
 select 
 	CONCAT(dbo.res_Sales.State_ID, '-', dbo.cd_Counties.County_TX, '-', SaleDateYear_VAL, '-', SaleSequenceNumber_VAL) AS SaleID,
+	dbo.cd_Counties.County_TX,
 	CAST(DateofSale_DT AS Date) AS Date,
 	CAST(dbo.res_Sales.SalesPrice_CUR AS INT) AS Price,
 	CAST(dbo.res_Sales.TotalAcres_VAL AS numeric(15,2)) AS Acres,
