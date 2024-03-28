@@ -1,18 +1,13 @@
 USE AppraisalUser
 
 SELECT 
-		
-		[CustFullName_TX]
-		,[AppraisalRequestId]
-		,[ValueDate_TX]
-		,[DollarPerAcre_VAL]
-		,[Evaluator_TX]
-		,[ImprovementsTotal_VAL]
+		 [AppraisalRequestId]
+		,[CustFullName_TX]
+		,CAST([ValueDate_TX] AS Date) AS Value_Date
+		,[Evaluator_TX] AS Mentor
 		,[PercentImprovements]
-		,[FinalMarketValue_VAL]
 		,[ValuationBasis_TX]
-		,[LevelOfInspection_TX]
-		,[AssistanceProvidedBy_TX]
+		,[LevelOfInspection_TX] AS Inspection_Type
 
   FROM dbo.rev_Vals
  Full Join dbo.rev_ValsTracts
