@@ -1,0 +1,26 @@
+USE AppraisalUser
+
+SELECT 
+		
+		[CustFullName_TX]
+		,[AppraisalRequestId]
+		,[ValueDate_TX]
+		,[DollarPerAcre_VAL]
+		,[Evaluator_TX]
+		,[ImprovementsTotal_VAL]
+		,[PercentImprovements]
+		,[FinalMarketValue_VAL]
+		,[ValuationBasis_TX]
+		,[LevelOfInspection_TX]
+		,[AssistanceProvidedBy_TX]
+
+  FROM dbo.rev_Vals
+ Full Join dbo.rev_ValsTracts
+ on dbo.rev_Vals.Valuation_SV = dbo.rev_ValsTracts.Valuation_SV
+
+
+  WHERE AssistanceProvidedBy_TX LIKE 'Swanson, Chris'
+  AND Evaluator_TX NOT LIKE 'AVM' 
+  AND Evaluator_TX NOT LIKE '%Keister%'
+  AND ValueDate_TX > '2021-08-01'
+  ORDER BY ValueDate_TX
