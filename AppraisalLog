@@ -2,16 +2,24 @@ USE AppraisalUser
 
 SELECT 
 		 [AppraisalRequestId]
-		,[CustFullName_TX]
+		,[CustFullName_TX] AS Customer
 		,CAST([ValueDate_TX] AS Date) AS Value_Date
 		,[Evaluator_TX] AS Mentor
 		,[PercentImprovements]
 		,[ValuationBasis_TX]
 		,[LevelOfInspection_TX] AS Inspection_Type
-
+		,[TractName_TX]
+		,[Location_TX]
+		,[County_TX]
+	    ,[SalesTotal_CUR]
+		,[IncomeTotal_CUR]
+		,[CostTotal_CUR]
+		,[HighestBestUse_TX]
+		,[PropertyType_TX]
+		,[NonAgInfluence_TX]
   FROM dbo.rev_Vals
  Full Join dbo.rev_ValsTracts
- on dbo.rev_Vals.Valuation_SV = dbo.rev_ValsTracts.Valuation_SV
+ on dbo.rev_ValsTracts.Valuation_SV = dbo.rev_Vals.Valuation_SV
 
 
   WHERE AssistanceProvidedBy_TX LIKE 'Swanson, Chris'
